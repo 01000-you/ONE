@@ -18,9 +18,11 @@
 #define __LUCI_CIRCLE_QUANTIZER_H__
 
 #include <loco.h>
+#include <luci/IR/CircleNode.h>
 
 #include <iterator>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace luci
@@ -59,6 +61,7 @@ public:
     enum Algorithm
     {
       QuantizeDequantizeWeights,
+      QuantizeWeightsWithGPTQ,
       QuantizeWithMinMax,
       Requantize,
       CopyQuantParam,
@@ -111,9 +114,15 @@ public:
 
 public:
   void quantize(loco::Graph *) const;
+  void setHessianMap(
+    std::unique_ptr<std::unordered_map<const luci::CircleNode *, std::vector<float>>> &hessian_map)
+  {
+    _hessian_map = std::move(hessian_map);
+  }
 
 private:
   std::unique_ptr<Options> _options;
+  std::unique_ptr<std::unordered_map<const luci::CircleNode *, std::vector<float>>> _hessian_map;
 };
 
 } // namespace luci
